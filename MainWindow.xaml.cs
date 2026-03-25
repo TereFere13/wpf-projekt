@@ -1,24 +1,70 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using wpf_projekt.Models; // Dodajemy dostęp do naszej klasy Transaction
 
 namespace wpf_projekt
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        // Publiczna lista - na razie przechowuje dane w pamięci. 
+        // Inna osoba z zespołu użyje tej listy, by ją zapisać do JSON (MVP pkt 7)!
+        public static List<Transaction> Transactions { get; set; } = new List<Transaction>();
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // Ustawienia początkowe formularza po uruchomieniu
+            LoadDefaultCategories();
+            TransactionDatePicker.SelectedDate = DateTime.Now; // Domyślnie dzisiejsza data
+        }
+
+        private void LoadDefaultCategories()
+        {
+            // Ładujemy domyślne kategorie z MVP pkt 3
+            CategoryComboBox.Items.Add("Jedzenie");
+            CategoryComboBox.Items.Add("Transport");
+            CategoryComboBox.Items.Add("Rachunki");
+            CategoryComboBox.Items.Add("Rozrywka");
+            CategoryComboBox.Items.Add("Inne");
+
+            CategoryComboBox.SelectedIndex = 0; // Wybiera pierwszą na liście z góry
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. Sprawdzenie, czy wpisana kwota jest poprawną liczbą
+            if (!decimal.TryParse(AmountTextBox.Text, out decimal parsedAmount))
+            {
+                MessageBox.Show("Wprowadź poprawną kwotę (np. 150,50).", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // 2. Pobranie pozostałych danych z UI
+            bool isIncome = IncomeRadio.IsChecked == true;
+
+            // 3. Stworzenie nowego obiektu transakcji
+            Transaction newTransaction = new Transaction
+            {
+                Id = Transactions.Count + 1, // Proste generowanie ID
+                Amount = parsedAmount,
+                Date = TransactionDatePicker.SelectedDate ?? DateTime.Now,
+                Description = DescriptionTextBox.Text,
+                Category = CategoryComboBox.SelectedItem?.ToString() ?? "Inne",
+                IsPositive = isIncome
+            };
+
+            // 4. Dodanie do wspólnej listy
+            Transactions.Add(newTransaction);
+
+            // 5. Powiadomienie użytkownika o sukcesie
+            MessageBox.Show($"Pomyślnie dodano transakcję!\n\nTyp: {newTransaction.TypeName}\nKwota: {newTransaction.Amount} zł\nKategoria: {newTransaction.Category}\nOpis: {newTransaction.Description}",
+                            "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // 6. Wyczyszczenie formularza dla kolejnej transakcji
+            AmountTextBox.Clear();
+            DescriptionTextBox.Clear();
         }
     }
 }
