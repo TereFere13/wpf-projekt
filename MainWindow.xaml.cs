@@ -151,6 +151,8 @@ namespace wpf_projekt
             }
         }
 
+
+// commit testowy komentarz
         private void ClearForm()
         {
             AmountTextBox.Clear();
