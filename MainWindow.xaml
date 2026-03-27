@@ -4,62 +4,80 @@
         Title="Zarządzanie Finansami" Height="650" Width="450"
         WindowStartupLocation="CenterScreen">
 
-    <Window.Resources>
-        <!-- Style, żeby nie powtarzać kodu dla każdego pola -->
-        <Style TargetType="TextBlock" x:Key="LabelStyle">
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#374151"/>
-            <Setter Property="Margin" Value="0,10,0,5"/>
-            <Setter Property="FontSize" Value="14"/>
-        </Style>
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="Dodaj nową transakcję" FontSize="22" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
-        <Style TargetType="Control" x:Key="InputStyle">
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderBrush" Value="#D1D5DB"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="White"/>
-        </Style>
-    </Window.Resources>
+            <TextBlock Text="Wybierz konto:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="AccountComboBox" Padding="5" Margin="0,0,0,15">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Konto #" />
+                            <TextBlock Text="{Binding Id}" />
+                            <TextBlock Text=" (Saldo: " Margin="5,0,0,0" />
+                            <TextBlock Text="{Binding Balance}" FontWeight="Bold" />
+                            <TextBlock Text=" zł)" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
-    <Grid>
-        <!-- Biała karta z cieniem na środku ekranu -->
-        <Border Background="White" Margin="30" Padding="25" CornerRadius="12">
-            <Border.Effect>
-                <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
-            </Border.Effect>
-
-            <StackPanel>
-                <TextBlock Text="Nowa Transakcja" FontSize="24" FontWeight="Bold" Foreground="#1F2937" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-
-            <!-- Kwota -->
             <TextBlock Text="Kwota (zł):" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <TextBox x:Name="AmountTextBox" Padding="5" Margin="0,0,0,15" />
 
-            <!-- Data -->
             <TextBlock Text="Data transakcji:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <DatePicker x:Name="TransactionDatePicker" Margin="0,0,0,15" />
 
-            <!-- Opis -->
             <TextBlock Text="Opis:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <TextBox x:Name="DescriptionTextBox" Padding="5" Margin="0,0,0,15" />
 
-            <!-- Kategoria -->
             <TextBlock Text="Kategoria:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-            <ComboBox x:Name="CategoryComboBox" Padding="5" Margin="0,0,0,15" />
+            <ComboBox x:Name="CategoryComboBox" DisplayMemberPath="Name" Padding="5" Margin="0,0,0,15" />
 
-            <!-- Typ: Przychód / Wydatek -->
             <TextBlock Text="Typ transakcji:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,25">
                 <RadioButton x:Name="ExpenseRadio" Content="Wydatek" IsChecked="True" Margin="0,0,20,0" FontSize="14"/>
                 <RadioButton x:Name="IncomeRadio" Content="Przychód" FontSize="14"/>
             </StackPanel>
 
-            <!-- Przycisk Zapisz -->
             <Button x:Name="SaveButton" Content="Dodaj transakcję" Click="SaveButton_Click" 
-                    Padding="10" Background="#0078D7" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                    Padding="10" Background="#0078D7" Foreground="White" FontSize="16" FontWeight="Bold" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Background" Value="#0078D7"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005A9E"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
 
-            </StackPanel>
-        </Border>
+            <TextBlock Text="Ostatnie transakcje:" Margin="0,20,0,5" FontWeight="Bold"/>
+            <ListBox x:Name="TransactionsList" Height="100" ItemsSource="{Binding Transactions}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="60"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Date, StringFormat=d}" Grid.Column="0"/>
+                            <TextBlock Text="{Binding Description}" Grid.Column="1" Margin="5,0"/>
+                            <TextBlock Text="{Binding Amount, StringFormat={}{0} zł}" Grid.Column="2" HorizontalAlignment="Right" FontWeight="Bold"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+        </StackPanel>
     </Grid>
 </Window>
