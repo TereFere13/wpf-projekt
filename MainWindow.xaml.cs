@@ -1,82 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using wpf_projekt.models;
 using wpf_projekt.Models;
 
 namespace wpf_projekt
 {
     public partial class MainWindow : Window
     {
+        // Publiczna lista - na razie przechowuje dane w pamięci. 
+        // Inna osoba z zespołu użyje tej listy, by ją zapisać do JSON (MVP pkt 7)!
         public static List<Transaction> Transactions { get; set; } = new List<Transaction>();
-
-        // Dwie oddzielne listy dla lepszej logiki!
-        private readonly List<string> ExpenseCategories = new List<string> { "Jedzenie", "Transport", "Rachunki", "Rozrywka", "Zdrowie", "Inne" };
-        private readonly List<string> IncomeCategories = new List<string> { "Wynagrodzenie", "Premia", "Zwrot", "Prezent", "Inne" };
 
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this; // Pozwala na Binding w XAML
 
-            TransactionDatePicker.SelectedDate = DateTime.Now;
-            UpdateCategories(); // Wczytuje kategorie przy starcie (domyślnie wydatki)
+            // Ustawienia początkowe formularza po uruchomieniu
+            LoadDefaultCategories();
+            TransactionDatePicker.SelectedDate = DateTime.Now; // Domyślnie dzisiejsza data
         }
 
-        // Metoda wywoływana automatycznie, gdy klikniesz "Przychód" lub "Wydatek"
-        private void TransactionType_Changed(object sender, RoutedEventArgs e)
+        private void LoadDefaultCategories()
         {
-            // Warunek zapobiega błędowi, zanim okno do końca się załaduje
-            if (CategoryComboBox != null)
-            {
-                UpdateCategories();
-            }
-        }
+            // Ładujemy domyślne kategorie z MVP pkt 3
+            CategoryComboBox.Items.Add("Jedzenie");
+            CategoryComboBox.Items.Add("Transport");
+            CategoryComboBox.Items.Add("Rachunki");
+            CategoryComboBox.Items.Add("Rozrywka");
+            CategoryComboBox.Items.Add("Inne");
 
-        // Logika podmieniania kategorii
-        private void UpdateCategories()
-        {
-            CategoryComboBox.Items.Clear(); // Czyści starą listę
-
-            if (ExpenseRadio.IsChecked == true)
-            {
-                foreach (var cat in ExpenseCategories) CategoryComboBox.Items.Add(cat);
-            }
-            else if (IncomeRadio.IsChecked == true)
-            {
-                foreach (var cat in IncomeCategories) CategoryComboBox.Items.Add(cat);
-            }
-
-            // Automatycznie zaznacza pierwszą pozycję z nowej listy
-            if (CategoryComboBox.Items.Count > 0)
-                CategoryComboBox.SelectedIndex = 0;
+            CategoryComboBox.SelectedIndex = 0; // Wybiera pierwszą na liście z góry
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            // Walidacja: czy wpisano kwotę i czy jest większa od 0
-            if (!decimal.TryParse(AmountTextBox.Text, out decimal parsedAmount) || parsedAmount <= 0)
+            // 1. Sprawdzenie, czy wpisana kwota jest poprawną liczbą
+            if (!decimal.TryParse(AmountTextBox.Text, out decimal parsedAmount))
             {
-                MessageBox.Show("Wprowadź poprawną kwotę większą od zera (np. 150,50).", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Wprowadź poprawną kwotę (np. 150,50).", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             bool isIncome = IncomeRadio.IsChecked == true;
 
+            // 3. Stworzenie nowego obiektu transakcji
             Transaction newTransaction = new Transaction
             {
-                Id = Transactions.Count + 1,
+                Id = Transactions.Count + 1, // Proste generowanie ID
                 Amount = parsedAmount,
                 Date = TransactionDatePicker.SelectedDate ?? DateTime.Now,
                 Description = DescriptionTextBox.Text,
-                Category = CategoryComboBox.SelectedItem?.ToString() ?? "Inne",
-                IsPositive = isIncome
+                TransactionTypeId = selectedType.Id,
+                PersonalAccountId = selectedAccount.Id
             };
 
+            // 4. Dodanie do wspólnej listy
             Transactions.Add(newTransaction);
 
-            MessageBox.Show($"Dodano pomyślnie!\n\nTyp: {newTransaction.TypeName}\nKategoria: {newTransaction.Category}\nKwota: {newTransaction.Amount} zł\nOpis: {newTransaction.Description}",
+            // 5. Powiadomienie użytkownika o sukcesie
+            MessageBox.Show($"Pomyślnie dodano transakcję!\n\nTyp: {newTransaction.TypeName}\nKwota: {newTransaction.Amount} zł\nKategoria: {newTransaction.Category}\nOpis: {newTransaction.Description}",
                             "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
 
-            // Wyczyszczenie formularza na następny raz
+            // 6. Wyczyszczenie formularza dla kolejnej transakcji
             AmountTextBox.Clear();
             DescriptionTextBox.Clear();
             TransactionDatePicker.SelectedDate = DateTime.Now;

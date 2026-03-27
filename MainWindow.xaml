@@ -1,8 +1,8 @@
 ﻿<Window x:Class="wpf_projekt.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Zarządzanie Finansami" Height="600" Width="450"
-        Background="#F3F4F6" WindowStartupLocation="CenterScreen">
+        Title="Zarządzanie Finansami" Height="650" Width="450"
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <!-- Style, żeby nie powtarzać kodu dla każdego pola -->
@@ -32,39 +32,32 @@
             <StackPanel>
                 <TextBlock Text="Nowa Transakcja" FontSize="24" FontWeight="Bold" Foreground="#1F2937" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                <!-- 1. Typ transakcji na samej górze (Zmienia kategorie!) -->
-                <TextBlock Text="Typ transakcji:" Style="{StaticResource LabelStyle}" Margin="0,0,0,5"/>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <RadioButton x:Name="ExpenseRadio" Content="Wydatek" IsChecked="True" Margin="0,0,20,0" FontSize="14" Checked="TransactionType_Changed"/>
-                    <RadioButton x:Name="IncomeRadio" Content="Przychód" FontSize="14" Checked="TransactionType_Changed"/>
-                </StackPanel>
+            <!-- Kwota -->
+            <TextBlock Text="Kwota (zł):" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBox x:Name="AmountTextBox" Padding="5" Margin="0,0,0,15" />
 
-                <!-- 2. Kategoria (Zależna od typu u góry) -->
-                <TextBlock Text="Kategoria:" Style="{StaticResource LabelStyle}"/>
-                <ComboBox x:Name="CategoryComboBox" Style="{StaticResource InputStyle}" Margin="0,0,0,10"/>
+            <!-- Data -->
+            <TextBlock Text="Data transakcji:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <DatePicker x:Name="TransactionDatePicker" Margin="0,0,0,15" />
 
-                <!-- 3. Kwota -->
-                <TextBlock Text="Kwota (zł):" Style="{StaticResource LabelStyle}"/>
-                <TextBox x:Name="AmountTextBox" Style="{StaticResource InputStyle}" Margin="0,0,0,10" />
+            <!-- Opis -->
+            <TextBlock Text="Opis:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBox x:Name="DescriptionTextBox" Padding="5" Margin="0,0,0,15" />
 
-                <!-- 4. Data -->
-                <TextBlock Text="Data transakcji:" Style="{StaticResource LabelStyle}"/>
-                <DatePicker x:Name="TransactionDatePicker" Style="{StaticResource InputStyle}" Margin="0,0,0,10" />
+            <!-- Kategoria -->
+            <TextBlock Text="Kategoria:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="CategoryComboBox" Padding="5" Margin="0,0,0,15" />
 
-                <!-- 5. Opis -->
-                <TextBlock Text="Opis (opcjonalnie):" Style="{StaticResource LabelStyle}"/>
-                <TextBox x:Name="DescriptionTextBox" Style="{StaticResource InputStyle}" Margin="0,0,0,25" />
+            <!-- Typ: Przychód / Wydatek -->
+            <TextBlock Text="Typ transakcji:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,25">
+                <RadioButton x:Name="ExpenseRadio" Content="Wydatek" IsChecked="True" Margin="0,0,20,0" FontSize="14"/>
+                <RadioButton x:Name="IncomeRadio" Content="Przychód" FontSize="14"/>
+            </StackPanel>
 
-                <!-- Przycisk Zapisz -->
-                <Button x:Name="SaveButton" Content="Dodaj transakcję" Click="SaveButton_Click" 
-                        Padding="12" Background="#2563EB" Foreground="White" FontSize="16" FontWeight="Bold" 
-                        BorderThickness="0" Cursor="Hand">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="8"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
+            <!-- Przycisk Zapisz -->
+            <Button x:Name="SaveButton" Content="Dodaj transakcję" Click="SaveButton_Click" 
+                    Padding="10" Background="#0078D7" Foreground="White" FontSize="16" FontWeight="Bold"/>
 
             </StackPanel>
         </Border>
