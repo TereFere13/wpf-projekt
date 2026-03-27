@@ -9,7 +9,19 @@ namespace wpf_projekt.models
     public class PersonalAccount : ObservableModel
     {
         public int Id { get; set; }
-        public decimal Balance { get; set; }
+        public decimal _balance;
+        public decimal Balance
+        {
+            get => _balance;
+            set
+            {
+                if (_balance != value)
+                {
+                    _balance = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         public int UserId { get; set; }
 
         public virtual User User { get; set; }

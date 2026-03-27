@@ -130,9 +130,9 @@ namespace wpf_projekt
             {
                 // 3. Logika biznesowa: Aktualizacja salda w bazie
                 if (isIncome)
-                    selectedAccount.Balance += (int)amount;
+                    selectedAccount.Balance += amount;
                 else
-                    selectedAccount.Balance -= (int)amount;
+                    selectedAccount.Balance -= amount;
 
                 // 4. Zapis do bazy
                 _context.Transactions.Add(newTransaction);
