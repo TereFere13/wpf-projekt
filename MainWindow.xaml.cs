@@ -58,6 +58,7 @@ namespace wpf_projekt
                 TransactionTypeId = selectedType.Id,
                 PersonalAccountId = selectedAccount.Id
             };
+            // komentarz testowy
 
             // 4. Dodanie do wspólnej listy
             Transactions.Add(newTransaction);
