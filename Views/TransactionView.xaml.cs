@@ -4,6 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.IO;
+using System.Text;
+using Microsoft.Win32;
+using wpf_projekt.Models; // Upewnij się, że masz to użycie, aby kod "widział" klasę Transaction
 
 namespace wpf_projekt.Views
 {
@@ -113,6 +117,68 @@ namespace wpf_projekt.Views
             else if (selectedSort == "Od najstarszej") data = data.OrderBy(t => t.Date);
 
             TransactionsGrid.ItemsSource = data.ToList();
+        }
+
+        private void ExportToCsvButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. Pobieramy aktualnie przefiltrowane dane prosto z tabeli
+            var dataToExport = TransactionsGrid.ItemsSource as IEnumerable<Transaction>;
+
+            if (dataToExport == null || !dataToExport.Any())
+            {
+                MessageBox.Show("Brak danych do wyeksportowania (lista jest pusta).", "Informacja", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // 2. Okienko do wyboru miejsca zapisu
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Plik CSV (*.csv)|*.csv",
+                Title = "Eksportuj transakcje",
+                // Proponowana nazwa pliku z dzisiejszą datą
+                FileName = $"Zestawienie_Transakcji_{DateTime.Now:yyyy_MM_dd}.csv"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    StringBuilder csv = new StringBuilder();
+
+                    // 3. Nagłówki kolumn (dokładnie takie jak w Twoim DataGrid)
+                    csv.AppendLine("Data;Kategoria;Kwota;Typ;Opis");
+
+                    // 4. Przechodzimy przez każdą WIDOCZNĄ transakcję
+                    foreach (var t in dataToExport)
+                    {
+                        // Formatujemy datę identycznie jak masz w UI
+                        string date = t.Date.ToString("dd.MM.yyyy");
+
+                        string category = t.TransactionType?.Name ?? "Brak";
+
+                        // Kwota - używamy standardowego ToString, co w polskim Windowsie da przecinek (zrozumiały dla Excela)
+                        string amount = t.Amount.ToString("F2");
+
+                        // Typ transakcji - używamy Twojej właściwości TypeName
+                        string type = t.TypeName ?? "";
+
+                        // Opis - zamieniamy średniki na przecinki, by nie zepsuć struktury CSV
+                        string desc = t.Description?.Replace(";", ",") ?? "";
+
+                        // Sklejamy cały wiersz i dodajemy do pliku
+                        csv.AppendLine($"{date};{category};{amount};{type};{desc}");
+                    }
+
+                    // 5. Zapis do pliku tekstowego z kodowaniem UTF8 (żeby działały polskie znaki w Excelu)
+                    File.WriteAllText(saveFileDialog.FileName, csv.ToString(), Encoding.UTF8);
+
+                    MessageBox.Show("Dane zostały pomyślnie zapisane!", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Wystąpił błąd podczas zapisu pliku: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }
