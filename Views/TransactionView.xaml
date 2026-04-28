@@ -11,61 +11,80 @@
 
             <StackPanel Margin="0,0,10,0">
                 <TextBlock Text="Rok" FontWeight="Bold"/>
-                <ComboBox x:Name="YearFilterComboBox" Width="80" SelectionChanged="FilterChanged"/>
+                <ComboBox Width="80"
+                          ItemsSource="{Binding AvailableYears}"
+                          SelectedItem="{Binding SelectedYear}"/>
             </StackPanel>
 
             <StackPanel Margin="0,0,10,0">
                 <TextBlock Text="Miesiąc" FontWeight="Bold"/>
-                <ComboBox x:Name="MonthFilterComboBox" Width="100" SelectionChanged="FilterChanged"/>
+                <ComboBox Width="100"
+                          ItemsSource="{Binding AvailableMonths}"
+                          SelectedItem="{Binding SelectedMonth}"
+                          DisplayMemberPath="Label"/>
             </StackPanel>
 
             <StackPanel Margin="0,0,10,0">
                 <TextBlock Text="Kategoria" FontWeight="Bold"/>
-                <ComboBox x:Name="CategoryFilterComboBox" Width="130" SelectionChanged="FilterChanged"/>
+                <ComboBox Width="130"
+                          ItemsSource="{Binding AvailableCategories}"
+                          SelectedItem="{Binding SelectedCategory}"/>
             </StackPanel>
 
             <StackPanel Margin="0,0,10,0">
                 <TextBlock Text="Rodzaj" FontWeight="Bold"/>
-                <ComboBox x:Name="TypeFilterComboBox" Width="100" SelectionChanged="FilterChanged">
-                    <ComboBoxItem Content="Wszystkie"/>
-                    <ComboBoxItem Content="Wydatek"/>
-                    <ComboBoxItem Content="Przychód"/>
+                <ComboBox Width="100"
+                          SelectedItem="{Binding SelectedType}">
+                    <ComboBox.Items>
+                        <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Wszystkie</system:String>
+                        <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Wydatek</system:String>
+                        <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Przychód</system:String>
+                    </ComboBox.Items>
                 </ComboBox>
             </StackPanel>
 
             <StackPanel>
                 <TextBlock Text="Data" FontWeight="Bold"/>
-                <ComboBox x:Name="DateSortComboBox" Width="120" SelectionChanged="FilterChanged">
-                    <ComboBoxItem Content="Od najnowszej"/>
-                    <ComboBoxItem Content="Od najstarszej"/>
+                <ComboBox Width="120"
+                          SelectedItem="{Binding SelectedSort}">
+                    <ComboBox.Items>
+                        <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Od najnowszej</system:String>
+                        <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Od najstarszej</system:String>
+                    </ComboBox.Items>
                 </ComboBox>
             </StackPanel>
 
             <StackPanel VerticalAlignment="Bottom" Margin="20,0,0,0">
-                <Button Content="Eksportuj do CSV" Width="120" Height="22" Click="ExportToCsvButton_Click" ToolTip="Zapisz widoczne dane do pliku Excel/CSV" Cursor="Hand"/>
+                <Button Content="Eksportuj do CSV"
+                        Width="120" Height="22"
+                        Command="{Binding ExportToCsvCommand}"
+                        ToolTip="Zapisz widoczne dane do pliku Excel/CSV"
+                        Cursor="Hand"/>
             </StackPanel>
 
         </StackPanel>
 
-        <DataGrid x:Name="TransactionsGrid" 
-                  AutoGenerateColumns="False" 
-                  IsReadOnly="True" 
+        <DataGrid ItemsSource="{Binding FilteredTransactions}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
                   Height="400"
                   VerticalScrollBarVisibility="Auto">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Data" Binding="{Binding Date, StringFormat={}{0:dd.MM.yyyy}}" Width="100" />
-                <DataGridTextColumn Header="Kategoria" Binding="{Binding TransactionType.Name}" Width="150" />
-                
-                <DataGridTextColumn Header="Kwota" Binding="{Binding Amount}" Width="80">
+                <DataGridTextColumn Header="Data"
+                                    Binding="{Binding Date, StringFormat={}{0:dd.MM.yyyy}}"
+                                    Width="100"/>
+                <DataGridTextColumn Header="Kategoria"
+                                    Binding="{Binding TransactionType.Name}"
+                                    Width="150"/>
+                <DataGridTextColumn Header="Kwota"
+                                    Binding="{Binding Amount}"
+                                    Width="80">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Style.Triggers>
-                                <!-- Przychód = zielony -->
                                 <DataTrigger Binding="{Binding IsPositive}" Value="True">
                                     <Setter Property="Foreground" Value="Green"/>
                                 </DataTrigger>
-
-                                <!-- Wydatek = czerwony -->
                                 <DataTrigger Binding="{Binding IsPositive}" Value="False">
                                     <Setter Property="Foreground" Value="Red"/>
                                 </DataTrigger>
@@ -73,9 +92,12 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                
-                <DataGridTextColumn Header="Typ" Binding="{Binding TypeName}" Width="80" />
-                <DataGridTextColumn Header="Opis" Binding="{Binding Description}" Width="*" />
+                <DataGridTextColumn Header="Typ"
+                                    Binding="{Binding TypeName}"
+                                    Width="80"/>
+                <DataGridTextColumn Header="Opis"
+                                    Binding="{Binding Description}"
+                                    Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </StackPanel>

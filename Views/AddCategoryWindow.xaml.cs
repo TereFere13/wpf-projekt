@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using wpf_projekt.models;
-using wpf_projekt.Models; // Przestrzeń nazw Twoich modeli i AppDbContext
+using wpf_projekt.Repositories;
+using wpf_projekt.ViewModels;
 
 namespace wpf_projekt.Views
 {
@@ -9,49 +10,25 @@ namespace wpf_projekt.Views
         public AddCategoryWindow()
         {
             InitializeComponent();
+
+            var context = new AppDbContext();
+            var categoryRepo = new CategoryRepository(context);
+            var vm = new AddCategoryViewModel(categoryRepo);
+
+            // Subskrypcja zdarzeń zamiast bezpośredniego zamykania w VM
+            vm.SavedSuccessfully += () =>
+            {
+                DialogResult = true;
+                Close();
+            };
+            vm.Cancelled += () =>
+            {
+                DialogResult = false;
+                Close();
+            };
+
+            DataContext = vm;
             CategoryNameTextBox.Focus();
-        }
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            string categoryName = CategoryNameTextBox.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(categoryName))
-            {
-                MessageBox.Show("Nazwa kategorii nie może być pusta!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                // Zapisujemy nową kategorię do bazy za pomocą Twojego AppDbContext
-                using (var db = new AppDbContext())
-                {
-                    var newCategory = new TransactionType
-                    {
-                        Name = categoryName
-                        // UWAGA: Jeśli Twoja klasa TransactionType ma jeszcze jakieś wymagane pola 
-                        // (np. typ string Icon, albo bool IsIncome), musisz je tutaj też uzupełnić!
-                    };
-
-                    db.TransactionTypes.Add(newCategory);
-                    db.SaveChanges();
-                }
-
-                // Sukces
-                this.DialogResult = true;
-                this.Close();
-            }
-            catch (System.Exception ex)
-            {
-                MessageBox.Show($"Wystąpił błąd podczas zapisu: {ex.Message}");
-            }
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.DialogResult = false;
-            this.Close();
         }
     }
 }
