@@ -54,6 +54,7 @@
                 </ComboBox>
             </StackPanel>
 
+
             <StackPanel VerticalAlignment="Bottom" Margin="20,0,0,0">
                 <Button Content="Eksportuj do CSV"
                         Width="120" Height="22"
@@ -61,8 +62,17 @@
                         ToolTip="Zapisz widoczne dane do pliku Excel/CSV"
                         Cursor="Hand"/>
             </StackPanel>
-
+            
+            <StackPanel VerticalAlignment="Bottom" Margin="20,0,0,0">
+                <Button Content="Importuj z CSV" 
+        Command="{Binding ImportCsvCommand}" 
+        Width="120" Height="22" 
+        HorizontalAlignment="Right"
+        ToolTip="Wczytaj transakcje z pliku CSV" Cursor="Hand"/>
         </StackPanel>
+        
+        
+    </StackPanel>
 
         <DataGrid ItemsSource="{Binding FilteredTransactions}"
                   AutoGenerateColumns="False"
