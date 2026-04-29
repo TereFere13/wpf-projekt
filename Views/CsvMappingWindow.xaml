@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:wpf_projekt.ViewModels"
         xmlns:conv="clr-namespace:wpf_projekt.Converters"
         Title="Import CSV — Mapowanie kolumn"
-        Width="680" Height="620"
+        Width="680" Height="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="#F5F7FA">
