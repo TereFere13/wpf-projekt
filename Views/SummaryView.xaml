@@ -1,65 +1,67 @@
 ﻿<UserControl x:Class="wpf_projekt.Views.SummaryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BackgroundBrush}">
     <Grid Margin="20">
-        <StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <TextBlock Text="Podsumowanie"
-                       FontSize="26" FontWeight="Bold"
-                       Margin="0,0,0,20"/>
+        <TextBlock Grid.Row="0" Text="Podsumowanie Budżetu"
+                   FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
 
-            <!-- FILTRY -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <StackPanel Margin="0,0,10,0">
-                    <TextBlock Text="Konto"/>
-                    <ComboBox Width="160"
-                              ItemsSource="{Binding AvailableAccounts}"
-                              SelectedItem="{Binding SelectedAccount}"
-                              DisplayMemberPath="Name"/>
+        <!-- FILTRY z użyciem CardStyle -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="0,0,15,0">
+                    <TextBlock Text="Konto" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox Width="180" ItemsSource="{Binding AvailableAccounts}"
+                              SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="Name"/>
                 </StackPanel>
-                <StackPanel Margin="0,0,10,0">
-                    <TextBlock Text="Rok"/>
-                    <ComboBox Width="100"
-                              ItemsSource="{Binding AvailableYears}"
+                <StackPanel Margin="0,0,15,0">
+                    <TextBlock Text="Rok" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox Width="100" ItemsSource="{Binding AvailableYears}"
                               SelectedItem="{Binding SelectedYear}"/>
                 </StackPanel>
                 <StackPanel>
-                    <TextBlock Text="Miesiąc"/>
-                    <ComboBox Width="120"
-                              ItemsSource="{Binding AvailableMonths}"
-                              SelectedItem="{Binding SelectedMonth}"
-                              DisplayMemberPath="Name"/>
+                    <TextBlock Text="Miesiąc" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox Width="140" ItemsSource="{Binding AvailableMonths}"
+                              SelectedItem="{Binding SelectedMonth}" DisplayMemberPath="Name"/>
                 </StackPanel>
             </StackPanel>
+        </Border>
 
-            <!-- KARTY -->
-            <UniformGrid Columns="3">
-                <Border Background="#DCFCE7" CornerRadius="10" Padding="15" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="Przychody" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding IncomeText}"
-                                   FontSize="20" FontWeight="Bold"
-                                   Foreground="Green"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="#FEE2E2" CornerRadius="10" Padding="15" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="Wydatki" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding ExpenseText}"
-                                   FontSize="20" FontWeight="Bold"
-                                   Foreground="Red"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="#E0E7FF" CornerRadius="10" Padding="15" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="Bilans" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding BalanceText}"
-                                   FontSize="20" FontWeight="Bold"
-                                   Foreground="{Binding BalanceBrush}"/>
-                    </StackPanel>
-                </Border>
-            </UniformGrid>
+        <!-- KARTY PODSUMOWANIA -->
+        <UniformGrid Grid.Row="2" Columns="3">
+            <!-- Karta Przychody -->
+            <Border Background="#E8F5E9" CornerRadius="8" Padding="20" Margin="0,0,10,0"
+                    BorderBrush="#A5D6A7" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Przychody" FontSize="14" Foreground="#2E7D32" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding IncomeText}" FontSize="24" FontWeight="Bold" Foreground="#1B5E20" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
 
-        </StackPanel>
+            <!-- Karta Wydatki -->
+            <Border Background="#FFEBEE" CornerRadius="8" Padding="20" Margin="5,0,5,0"
+                    BorderBrush="#EF9A9A" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Wydatki" FontSize="14" Foreground="#C62828" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding ExpenseText}" FontSize="24" FontWeight="Bold" Foreground="#B71C1C" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Karta Bilans -->
+            <Border Background="#E3F2FD" CornerRadius="8" Padding="20" Margin="10,0,0,0"
+                    BorderBrush="#90CAF9" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Bilans" FontSize="14" Foreground="#1565C0" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding BalanceText}" FontSize="24" FontWeight="Bold" Foreground="{Binding BalanceBrush}" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
     </Grid>
 </UserControl>
