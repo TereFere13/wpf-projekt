@@ -59,7 +59,7 @@ namespace wpf_projekt.ViewModels
             _transactionRepository = transactionRepository;
             _categoryRepository = categoryRepository;
 
-            TransactionsVm = new TransactionsViewModel(this);
+            TransactionsVm = new TransactionsViewModel(this, transactionRepository, categoryRepository);
             SummaryVm = new SummaryViewModel(this);
         }
 

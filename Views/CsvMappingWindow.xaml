@@ -1,0 +1,370 @@
+<Window x:Class="wpf_projekt.Views.CsvMappingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:wpf_projekt.ViewModels"
+        xmlns:conv="clr-namespace:wpf_projekt.Converters"
+        Title="Import CSV — Mapowanie kolumn"
+        Width="680" Height="640"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F5F7FA">
+
+    <Window.Resources>
+        <!-- ── Kolory ── -->
+        <SolidColorBrush x:Key="AccentBrush"    Color="#3B6FE0"/>
+        <SolidColorBrush x:Key="AccentHover"    Color="#2D5CC8"/>
+        <SolidColorBrush x:Key="DangerBrush"    Color="#E03B3B"/>
+        <SolidColorBrush x:Key="SuccessBrush"   Color="#27AE60"/>
+        <SolidColorBrush x:Key="SurfaceBrush"   Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="BorderBrush"    Color="#DDE2EA"/>
+        <SolidColorBrush x:Key="MutedBrush"     Color="#6B7280"/>
+        <SolidColorBrush x:Key="TextBrush"      Color="#1A202C"/>
+
+        <!-- ── Sekcja (karta) ── -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background"       Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="CornerRadius"     Value="8"/>
+            <Setter Property="Padding"          Value="16"/>
+            <Setter Property="Margin"           Value="0,0,0,10"/>
+            <Setter Property="BorderBrush"      Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness"  Value="1"/>
+        </Style>
+
+        <!-- ── Etykieta pola ── -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize"     Value="11"/>
+            <Setter Property="FontWeight"   Value="SemiBold"/>
+            <Setter Property="Foreground"   Value="{StaticResource MutedBrush}"/>
+            <Setter Property="Margin"       Value="0,0,0,4"/>
+        </Style>
+
+        <!-- ── ComboBox ── -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Height"           Value="32"/>
+            <Setter Property="Padding"          Value="8,0"/>
+            <Setter Property="BorderBrush"      Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness"  Value="1"/>
+            <Setter Property="Background"       Value="White"/>
+            <Setter Property="FontSize"         Value="13"/>
+        </Style>
+
+        <!-- ── TextBox ── -->
+        <Style TargetType="TextBox">
+            <Setter Property="Height"           Value="32"/>
+            <Setter Property="Padding"          Value="8,0"/>
+            <Setter Property="BorderBrush"      Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness"  Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize"         Value="13"/>
+        </Style>
+
+        <!-- ── Przycisk główny ── -->
+        <Style x:Key="PrimaryBtn" TargetType="Button">
+            <Setter Property="Background"   Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground"   Value="White"/>
+            <Setter Property="FontWeight"   Value="SemiBold"/>
+            <Setter Property="FontSize"     Value="13"/>
+            <Setter Property="Height"       Value="38"/>
+            <Setter Property="Padding"      Value="20,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"       Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource AccentHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Przycisk drugorzędny ── -->
+        <Style x:Key="SecondaryBtn" TargetType="Button">
+            <Setter Property="Background"   Value="White"/>
+            <Setter Property="Foreground"   Value="{StaticResource TextBrush}"/>
+            <Setter Property="FontSize"     Value="13"/>
+            <Setter Property="Height"       Value="38"/>
+            <Setter Property="Padding"      Value="20,0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"  Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Cursor"       Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F0F4FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Przycisk mini (profil) ── -->
+        <Style x:Key="MiniBtn" TargetType="Button" BasedOn="{StaticResource SecondaryBtn}">
+            <Setter Property="Height"   Value="28"/>
+            <Setter Property="Padding"  Value="12,0"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- nagłówek -->
+            <RowDefinition Height="Auto"/>  <!-- profile -->
+            <RowDefinition Height="Auto"/>  <!-- mapowanie -->
+            <RowDefinition Height="Auto"/>  <!-- konto / kategoria -->
+            <RowDefinition Height="Auto"/>  <!-- opcje -->
+            <RowDefinition Height="*"/>     <!-- podgląd -->
+            <RowDefinition Height="Auto"/>  <!-- przyciski -->
+        </Grid.RowDefinitions>
+
+        <!-- ══════ NAGŁÓWEK ══════ -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="Import CSV"
+                       FontSize="22" FontWeight="Bold"
+                       Foreground="{StaticResource TextBrush}"/>
+            <TextBlock FontSize="13" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0">
+                <Run Text="Znaleziono"/>
+                <Run Text="{Binding TotalRowCount}" FontWeight="SemiBold"/>
+                <Run Text="wierszy. Przypisz kolumny pliku do pól aplikacji."/>
+            </TextBlock>
+        </StackPanel>
+
+        <!-- ══════ ZAPISANE PROFILE ══════ -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="3"
+                           Style="{StaticResource FieldLabel}"
+                           Text="ZAPISANE SCHEMATY MAPOWANIA"/>
+
+                <ComboBox Grid.Row ="1" Grid.Column="0"
+                          Margin="0,0,8,0"
+                          x:Name="ProfilesCombo"
+                          ItemsSource="{Binding SavedProfiles}"
+                          DisplayMemberPath="ProfileName"/>
+
+
+                <Button Grid.Row="1" Grid.Column="1"
+                        Style="{StaticResource MiniBtn}"
+                        Content="Wczytaj"
+                        Margin="0,0,6,0"
+                        Command="{Binding LoadProfileCommand}"
+                        CommandParameter="{Binding SelectedItem, ElementName=ProfilesCombo}"/>
+
+                <Button Grid.Row="1" Grid.Column="2"
+                        Style="{StaticResource MiniBtn}"
+                        Content="Zapisz bieżący"
+                        Command="{Binding SaveProfileCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- ══════ MAPOWANIE KOLUMN ══════ -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Tytuł sekcji -->
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="3"
+                           Style="{StaticResource FieldLabel}"
+                           Text="MAPOWANIE KOLUMN CSV → POLA TRANSAKCJI"/>
+
+                <!-- Data -->
+                <StackPanel Grid.Row="2" Grid.Column="0">
+                    <TextBlock Style="{StaticResource FieldLabel}">
+                        Data <Run Foreground="{StaticResource DangerBrush}">*</Run>
+                    </TextBlock>
+                    <ComboBox ItemsSource="{Binding AvailableColumns}"
+                              SelectedItem="{Binding SelectedColumnDate}"/>
+                </StackPanel>
+
+                <!-- Format daty -->
+                <StackPanel Grid.Row="2" Grid.Column="2">
+                    <TextBlock Text="Format daty (np. dd.MM.yyyy)"
+                               Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding DateFormat, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+
+                <!-- Kwota -->
+                <StackPanel Grid.Row="4" Grid.Column="0">
+                    <TextBlock Style="{StaticResource FieldLabel}">
+                        Kwota <Run Foreground="{StaticResource DangerBrush}">*</Run>
+                    </TextBlock>
+                    <ComboBox ItemsSource="{Binding AvailableColumns}"
+                              SelectedItem="{Binding SelectedColumnAmount}"/>
+                </StackPanel>
+
+                <!-- Opis -->
+                <StackPanel Grid.Row="4" Grid.Column="2">
+                    <TextBlock Text="Opis / Tytuł"
+                               Style="{StaticResource FieldLabel}"/>
+                    <ComboBox ItemsSource="{Binding AvailableColumns}"
+                              SelectedItem="{Binding SelectedColumnDescription}"/>
+                </StackPanel>
+
+                <!-- Typ transakcji -->
+                <StackPanel Grid.Row="6" Grid.Column="0">
+                    <TextBlock Text="Kolumna typu (Przychód/Wydatek)"
+                               Style="{StaticResource FieldLabel}"/>
+                    <ComboBox ItemsSource="{Binding AvailableColumns}"
+                              SelectedItem="{Binding SelectedColumnIsPositive}"
+                              IsEnabled="{Binding AmountSignDeterminesDirection,
+                                          Converter={x:Static conv:BoolNegationConverter.Instance}}"/>
+                </StackPanel>
+
+                <!-- Kierunek ze znaku kwoty -->
+                <StackPanel Grid.Row="6" Grid.Column="2" VerticalAlignment="Center">
+                    <CheckBox Content="Kierunek wynika ze znaku kwoty (+ / −)"
+                              IsChecked="{Binding AmountSignDeterminesDirection}"
+                              FontSize="12" Margin="0,18,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══════ KONTO I KATEGORIA ══════ -->
+        <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="5"
+                           Style="{StaticResource FieldLabel}"
+                           Text="KONTO DOCELOWE I KATEGORIA"/>
+
+                <StackPanel Grid.Row="2" Grid.Column="0">
+                    <TextBlock Style="{StaticResource FieldLabel}">
+                        Konto <Run Foreground="{StaticResource DangerBrush}">*</Run>
+                    </TextBlock>
+                    <ComboBox ItemsSource="{Binding Accounts}"
+                              SelectedItem="{Binding SelectedAccount}"
+                              DisplayMemberPath="DisplayName"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="2">
+                    <TextBlock Style="{StaticResource FieldLabel}">
+                        Kategoria <Run Foreground="{StaticResource DangerBrush}">*</Run>
+                    </TextBlock>
+                    <ComboBox ItemsSource="{Binding Categories}"
+                              SelectedItem="{Binding SelectedCategory}"
+                              DisplayMemberPath="Name"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="4">
+                    <TextBlock Text="Nazwa schematu" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding ProfileName, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══════ PODGLĄD ══════ -->
+        <Border Grid.Row="5" Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="PODGLĄD PIERWSZEGO WIERSZA"/>
+                <Border Background="#F8F9FB" CornerRadius="4" Padding="10,8"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <TextBlock Text="{Binding PreviewText}"
+                               FontFamily="Consolas" FontSize="12"
+                               Foreground="{StaticResource TextBrush}"
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Błędy walidacji -->
+                <Border Visibility="{Binding IsValid,
+                            Converter={x:Static conv:BoolToVisibilityNegConverter.Instance}}"
+                        Background="#FFF3F3" CornerRadius="4" Padding="10,8"
+                        Margin="0,6,0,0"
+                        BorderBrush="#FFBCBC" BorderThickness="1">
+                    <TextBlock Text="{Binding ValidationMessage}"
+                               Foreground="{StaticResource DangerBrush}"
+                               FontSize="12" TextWrapping="Wrap"/>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- ══════ PRZYCISKI AKCJI ══════ -->
+        <Grid Grid.Row="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1"
+                    Style="{StaticResource SecondaryBtn}"
+                    Content="Anuluj"
+                    Command="{Binding CancelCommand}"/>
+
+            <Button Grid.Column="3"
+                    Style="{StaticResource PrimaryBtn}"
+                    Content="Importuj transakcje →"
+                    Command="{Binding ImportCommand}"
+                    IsEnabled="{Binding IsValid}"/>
+        </Grid>
+
+        <!-- Overlay podczas importu -->
+        <Grid Grid.RowSpan="7"
+              Visibility="{Binding IsBusy,
+                  Converter={x:Static conv:BoolToVisibilityConverter.Instance}}"
+              Background="#80FFFFFF">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Importowanie..." FontSize="16" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="{StaticResource AccentBrush}"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4"
+                             Margin="0,8,0,0" Foreground="{StaticResource AccentBrush}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
