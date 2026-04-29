@@ -3,145 +3,179 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:wpf_projekt.Views"
         xmlns:vm="clr-namespace:wpf_projekt.ViewModels"
-        Title="Zarządzanie Finansami" Height="620" Width="932"
-        Background="#F3F4F6" WindowStartupLocation="CenterScreen">
+        Title="Zarządzanie Finansami" Height="700" Width="950"
+        Background="{StaticResource BackgroundBrush}" 
+        WindowStartupLocation="CenterScreen">
 
-    <Window.Resources>
-        <Style TargetType="TextBox">
-            <Style.Triggers>
-                <Trigger Property="Validation.HasError" Value="True">
-                    <Setter Property="BorderBrush" Value="Red"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
+    <Grid Margin="15">
+        <TabControl Background="Transparent" BorderThickness="0">
+            <!-- Stylizowanie zakładek -->
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Padding" Value="15,8"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TabControl.Resources>
 
-    <Grid Margin="20">
-        <TabControl>
-
-            <!-- DODAJ -->
+            <!-- ══════ DODAJ ══════ -->
             <TabItem Header="Dodaj">
-                <Border Background="White" Margin="10" Padding="20" CornerRadius="12">
-                    <Border.Effect>
-                        <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
-                    </Border.Effect>
-
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0">
                     <StackPanel>
-                        <TextBlock Text="Dodaj nową transakcję"
-                                   FontSize="22" FontWeight="Bold"
-                                   Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
-                        <TextBlock Text="Kwota (zł):"/>
-                        <TextBox x:Name="AmountTextBox"
-                                 Margin="0,0,0,10"
-                                 Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged}"
-                                 PreviewTextInput="AmountTextBox_PreviewTextInput"/>
+                        <!-- KARTA 1: DODAJ TRANSAKCJĘ -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Nowa transakcja" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
 
-                        <TextBlock Text="Wybierz konto:"/>
-                        <ComboBox Margin="0,0,0,10"
-                                  ItemsSource="{Binding Accounts}"
-                                  SelectedItem="{Binding SelectedAccount}"
-                                  DisplayMemberPath="DisplayName"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <!-- Odstęp między kolumnami -->
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Data transakcji:"/>
-                        <DatePicker Margin="0,0,0,10"
-                                    SelectedDate="{Binding TransactionDate}"/>
+                                    <!-- Lewa Kolumna -->
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Kwota (zł)" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox x:Name="AmountTextBox" Margin="0,0,0,15"
+         Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+         PreviewTextInput="AmountTextBox_PreviewTextInput"/>
+                                        <TextBlock Text="Konto" Style="{StaticResource FieldLabel}"/>
+                                        <ComboBox Margin="0,0,0,15" ItemsSource="{Binding Accounts}"
+                                                  SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="DisplayName"/>
 
-                        <TextBlock Text="Opis:"/>
-                        <TextBox Margin="0,0,0,10"
-                                 Text="{Binding DescriptionText, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <TextBlock Text="Data transakcji" Style="{StaticResource FieldLabel}"/>
+                                        <DatePicker Margin="0,0,0,15" SelectedDate="{Binding TransactionDate}"/>
+                                    </StackPanel>
 
-                        <TextBlock Text="Kategoria:"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <ComboBox ItemsSource="{Binding Categories}"
-                                      SelectedItem="{Binding SelectedCategory}"
-                                      DisplayMemberPath="Name"
-                                      Width="200"/>
-                            <Button Content="+" Width="30" Margin="10,0,0,0"
-                                    ToolTip="Dodaj własną kategorię" Cursor="Hand"
-                                    Command="{Binding OpenAddCategoryCommand}"/>
-                        </StackPanel>
+                                    <!-- Prawa Kolumna -->
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Kategoria" Style="{StaticResource FieldLabel}"/>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" ItemsSource="{Binding Categories}"
+                                                      SelectedItem="{Binding SelectedCategory}" DisplayMemberPath="Name"/>
+                                            <Button Grid.Column="1" Content="+" Width="32" Margin="10,0,0,0"
+                                                    Style="{StaticResource SecondaryBtn}" ToolTip="Dodaj własną kategorię"
+                                                    Command="{Binding OpenAddCategoryCommand}"/>
+                                        </Grid>
 
-                        <TextBlock Text="Typ transakcji:"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <RadioButton Content="Wydatek"
-                                         IsChecked="{Binding IsExpense}"
-                                         Margin="0,0,20,0"/>
-                            <RadioButton Content="Przychód"
-                                         IsChecked="{Binding IsIncome}"/>
-                        </StackPanel>
+                                        <TextBlock Text="Typ transakcji" Style="{StaticResource FieldLabel}"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15" Height="32">
+                                            <RadioButton Content="Wydatek" IsChecked="{Binding IsExpense}" 
+                                                         Margin="0,0,20,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource DangerBrush}"/>
+                                            <RadioButton Content="Przychód" IsChecked="{Binding IsIncome}" 
+                                                         VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource SuccessBrush}"/>
+                                        </StackPanel>
 
-                        <Button Content="Dodaj transakcję"
-                                Command="{Binding SaveTransactionCommand}"
-                                Padding="10"
-                                Background="#0078D7"
-                                Foreground="White"
-                                FontWeight="Bold"/>
+                                        <TextBlock Text="Opis" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Margin="0,0,0,15" Text="{Binding DescriptionText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </Grid>
 
-                        <!-- Transfer -->
-                        <TextBlock Text="Transfer między kontami"
-                                   FontWeight="Bold" Margin="0,16,0,6"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <ComboBox ItemsSource="{Binding Accounts}"
-                                      SelectedItem="{Binding TransferFrom}"
-                                      DisplayMemberPath="DisplayName"
-                                      Width="200" Margin="0,0,10,0"/>
-                            <ComboBox ItemsSource="{Binding Accounts}"
-                                      SelectedItem="{Binding TransferTo}"
-                                      DisplayMemberPath="DisplayName"
-                                      Width="200" Margin="0,0,10,0"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBox Width="100" Margin="0,0,10,0"
-                                     ToolTip="Kwota transferu"
-                                     Text="{Binding TransferAmountText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBox Width="240" Margin="0,0,10,0"
-                                     ToolTip="Opis transferu"
-                                     Text="{Binding TransferDescription, UpdateSourceTrigger=PropertyChanged}"/>
-                            <Button Content="Wykonaj transfer" Width="120"
-                                    Command="{Binding ExecuteTransferCommand}"/>
-                        </StackPanel>
+                                <!-- Przycisk zapisu pod kolumnami -->
+                                <Button Content="Dodaj transakcję" Command="{Binding SaveTransactionCommand}"
+                                        Style="{StaticResource PrimaryBtn}" HorizontalAlignment="Right" Width="180" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- KARTA 2: TRANSFER -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Transfer między kontami" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <StackPanel Margin="0,0,15,10" Width="180">
+                                        <TextBlock Text="Z konta" Style="{StaticResource FieldLabel}"/>
+                                        <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding TransferFrom}" DisplayMemberPath="DisplayName"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="→" FontSize="20" FontWeight="Bold" Foreground="{StaticResource MutedBrush}" Margin="0,20,15,10"/>
+
+                                    <StackPanel Margin="0,0,15,10" Width="180">
+                                        <TextBlock Text="Na konto" Style="{StaticResource FieldLabel}"/>
+                                        <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding TransferTo}" DisplayMemberPath="DisplayName"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,0,15,10" Width="120">
+                                        <TextBlock Text="Kwota (zł)" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Text="{Binding TransferAmountText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,0,15,10" Width="200">
+                                        <TextBlock Text="Opis transferu" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Text="{Binding TransferDescription, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </WrapPanel>
+
+                                <Button Content="Wykonaj transfer" Command="{Binding ExecuteTransferCommand}"
+                                        Style="{StaticResource SecondaryBtn}" HorizontalAlignment="Right" Width="180" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
-                </Border>
+                </ScrollViewer>
             </TabItem>
 
-            <!-- KONTA -->
+            <!-- ══════ KONTA ══════ -->
             <TabItem Header="Konta">
-                <Border Background="White" Margin="10" Padding="20" CornerRadius="12">
-                    <Border.Effect>
-                        <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
-                    </Border.Effect>
+                <ScrollViewer Margin="0,10,0,0">
                     <StackPanel>
-                        <TextBlock Text="Zarządzanie kontami"
-                                   FontSize="22" FontWeight="Bold"
-                                   Margin="0,0,0,20" HorizontalAlignment="Center"/>
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Zarządzanie kontami" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
 
-                        <TextBlock Text="Dodaj nowe konto" FontWeight="Bold" Margin="0,0,0,6"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                            <TextBox Width="220" Margin="0,0,10,0"
-                                     ToolTip="Nazwa nowego konta"
-                                     Text="{Binding NewAccountName, UpdateSourceTrigger=PropertyChanged}"/>
-                            <ComboBox Width="120" Margin="0,0,10,0"
-                                      SelectedValue="{Binding NewAccountType}">
-                                <ComboBoxItem Content="Osobiste" IsSelected="True"/>
-                                <ComboBoxItem Content="Wspólne"/>
-                            </ComboBox>
-                            <Button Content="Dodaj konto" Width="110"
-                                    Command="{Binding AddAccountCommand}"/>
-                        </StackPanel>
+                                <TextBlock Text="Dodaj nowe konto" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                        <TextBlock Text="Nazwa konta" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Text="{Binding NewAccountName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="0,0,15,0" Width="150">
+                                        <TextBlock Text="Typ" Style="{StaticResource FieldLabel}"/>
+                                        <ComboBox SelectedValue="{Binding NewAccountType}">
+                                            <ComboBoxItem Content="Osobiste" IsSelected="True"/>
+                                            <ComboBoxItem Content="Wspólne"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                                        <Button Content="Dodaj konto" Command="{Binding AddAccountCommand}"
+                                                Style="{StaticResource PrimaryBtn}" Width="140"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                </Border>
+                </ScrollViewer>
             </TabItem>
 
-            <!-- TRANSAKCJE -->
+            <!-- ══════ TRANSAKCJE ══════ -->
             <TabItem Header="Transakcje">
-                <views:TransactionsView DataContext="{Binding TransactionsVm}"/>
+                <views:TransactionsView DataContext="{Binding TransactionsVm}" Margin="0,10,0,0"/>
             </TabItem>
 
-            <!-- PODSUMOWANIE -->
+            <!-- ══════ PODSUMOWANIE ══════ -->
             <TabItem Header="Podsumowanie">
-                <views:SummaryView DataContext="{Binding SummaryVm}"/>
+                <views:SummaryView DataContext="{Binding SummaryVm}" Margin="0,10,0,0"/>
             </TabItem>
 
         </TabControl>

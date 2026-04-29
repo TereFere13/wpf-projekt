@@ -9,10 +9,11 @@ using System.Windows;
 using wpf_projekt.models;
 using wpf_projekt.Models;
 using wpf_projekt.Repositories;
+using System.ComponentModel;
 
 namespace wpf_projekt.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainViewModel : ObservableObject, IDataErrorInfo
     {
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
@@ -28,8 +29,15 @@ namespace wpf_projekt.ViewModels
         public ObservableCollection<AccountListItem> Accounts { get; } = new();
         public ObservableCollection<TransactionType> Categories { get; } = new();
 
-        // ── Właściwości bindowane — formularz transakcji ─────────────────────────
-        [ObservableProperty] private string _amountText = string.Empty;
+        // ── Właściwości bindowane — formularz transakcji (WALIDOWANE) ───────────
+
+        private string _amountText = string.Empty;
+        public string AmountText
+        {
+            get => _amountText;
+            set => SetProperty(ref _amountText, value);
+        }
+
         [ObservableProperty] private string _descriptionText = string.Empty;
         [ObservableProperty] private DateTime _transactionDate = DateTime.Now;
         [ObservableProperty] private TransactionType? _selectedCategory;
@@ -112,7 +120,7 @@ namespace wpf_projekt.ViewModels
         [RelayCommand]
         private async Task SaveTransactionAsync()
         {
-            if (!decimal.TryParse(AmountText, out decimal amount))
+            if (!decimal.TryParse(AmountText.Replace('.', ','), out decimal amount))
             {
                 MessageBox.Show("Wprowadź poprawną kwotę.");
                 return;
@@ -199,7 +207,7 @@ namespace wpf_projekt.ViewModels
         [RelayCommand]
         private async Task ExecuteTransferAsync()
         {
-            if (!decimal.TryParse(TransferAmountText, out decimal amount) || amount <= 0)
+            if (!decimal.TryParse(TransferAmountText.Replace('.', ','), out decimal amount) || amount <= 0)
             {
                 MessageBox.Show("Podaj poprawną kwotę transferu.");
                 return;
@@ -346,6 +354,34 @@ namespace wpf_projekt.ViewModels
             _context.SharedAccounts.Add(new SharedAccount
             { Name = "Konto wspólne", Balance = 1200, User1Id = user.Id, User2Id = user.Id });
             await _context.SaveChangesAsync();
+        }
+
+        // --- LOGIKA WALIDACJI (IDataErrorInfo) ---
+        public string Error => null;
+
+        public string this[string columnName]
+        {
+            get
+            {
+                if (columnName == nameof(AmountText))
+                {
+                    if (string.IsNullOrWhiteSpace(AmountText)) return null;
+
+                    string normalized = AmountText.Replace('.', ',');
+                    if (!decimal.TryParse(normalized, out decimal result))
+                    {
+                        return "Nieprawidłowy format kwoty (np. wpisz 100,50)";
+                    }
+
+                    if (normalized.Contains(",") && normalized.Substring(normalized.IndexOf(",") + 1).Length > 2)
+                    {
+                        return "Maksymalnie 2 miejsca po przecinku";
+                    }
+
+                    if (result <= 0) return "Kwota musi być większa od 0";
+                }
+                return null;
+            }
         }
     }
 }
