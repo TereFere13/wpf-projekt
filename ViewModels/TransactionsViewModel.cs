@@ -11,6 +11,8 @@ using System.Windows;
 using Microsoft.Win32;
 using wpf_projekt.Models;
 using System.Windows.Input;
+using wpf_projekt.Services;
+using wpf_projekt.Repositories;
 
 
 
@@ -23,6 +25,9 @@ namespace wpf_projekt.ViewModels
     public partial class TransactionsViewModel : ObservableObject
     {
         private readonly MainViewModel _mainVm;
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly ICategoryRepository _categoryRepository;
+
 
         // ── Kolekcje filtrów ─────────────────────────────────────────────────────
         public ObservableCollection<string> AvailableYears { get; } = new();
@@ -39,9 +44,13 @@ namespace wpf_projekt.ViewModels
         [ObservableProperty] private string _selectedType = "Wszystkie";   // Wszystkie / Wydatek / Przychód
         [ObservableProperty] private string _selectedSort = "Od najnowszej"; // Od najnowszej / Od najstarszej
 
-        public TransactionsViewModel(MainViewModel mainVm)
+        public TransactionsViewModel(MainViewModel mainVm,
+        ITransactionRepository transactionRepository,
+        ICategoryRepository categoryRepository)
         {
             _mainVm = mainVm;
+            _transactionRepository = transactionRepository;
+            _categoryRepository = categoryRepository;
             _mainVm.Transactions.CollectionChanged += (_, _) => Refresh();
         }
 
@@ -169,12 +178,11 @@ namespace wpf_projekt.ViewModels
 
 
 
-        public List<Dictionary<string, string>> TemporaryImportedRecords { get; private set; } = new();
 
         [RelayCommand]
-        private void ImportCsv()
+        private async System.Threading.Tasks.Task ImportCsvAsync()
         {
-            var dlg = new OpenFileDialog
+            var dlg = new Microsoft.Win32.OpenFileDialog
             {
                 Filter = "Pliki CSV (*.csv)|*.csv",
                 Title = "Wybierz plik CSV z transakcjami"
@@ -182,92 +190,51 @@ namespace wpf_projekt.ViewModels
 
             if (dlg.ShowDialog() != true) return;
 
+            if (!dlg.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Wybrano nieprawidłowy format. Proszę wybrać plik .csv.",
+                    "Błąd pliku", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
-                // 1. Zabezpieczenie przed wczytywaniem skrótów i złych plików
-                if (!dlg.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+                // 1. Wczytaj i sparsuj plik CSV
+                var (headers, rows) = CsvImportService.ParseFile(dlg.FileName);
+
+                // 2. Upewnij się że kategoria "Import" istnieje
+                await _categoryRepository.EnsureExistsAsync("Import");
+
+                // 3. Otwórz okno mapowania
+                var mappingVm = new wpf_projekt.ViewModels.CsvMappingViewModel(
+                    headers, rows,
+                    _transactionRepository,
+                    _categoryRepository,
+                    _mainVm);
+
+                var mappingWindow = new wpf_projekt.Views.CsvMappingWindow(mappingVm)
                 {
-                    MessageBox.Show("Wybrano nieprawidłowy format. Proszę wybrać plik z rozszerzeniem .csv!", "Błąd pliku",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+                    Owner = Application.Current.MainWindow
+                };
 
-                string[] lines = File.ReadAllLines(dlg.FileName);
-
-                if (lines.Length < 2)
-                {
-                    MessageBox.Show("Plik jest pusty lub brakuje w nim wierszy z danymi.", "Błąd formatu",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                char delimiter = lines[0].Contains(';') ? ';' : ',';
-                string[] headers = lines[0].Split(delimiter);
-
-                // 2. Walidacja nagłówków: Prawdziwy CSV z banku będzie miał chociaż kilka konkretnych kolumn
-                if (headers.Length < 2 || string.IsNullOrWhiteSpace(headers[0]))
-                {
-                    MessageBox.Show("Plik nie wygląda jak poprawny plik z transakcjami (brak odpowiednich kolumn).", "Błąd struktury",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var parsedRecords = new List<Dictionary<string, string>>();
-
-                for (int i = 1; i < lines.Length; i++)
-                {
-                    if (string.IsNullOrWhiteSpace(lines[i])) continue;
-
-                    string[] values = lines[i].Split(delimiter);
-
-                    // 3. Zabezpieczenie: Ignorujemy wiersze, które ewidentnie są uszkodzone (mają drastycznie mniej kolumn niż nagłówek)
-                    if (values.Length < headers.Length - 1) continue;
-
-                    var record = new Dictionary<string, string>();
-
-                    for (int j = 0; j < headers.Length; j++)
-                    {
-                        // Używamy Trim() aby usunąć ukryte spacje
-                        string key = headers[j].Trim();
-                        if (string.IsNullOrWhiteSpace(key)) continue;
-
-                        record[key] = j < values.Length ? values[j].Trim() : "";
-                    }
-
-                    if (record.Count > 0)
-                        parsedRecords.Add(record);
-                }
-
-                if (parsedRecords.Count == 0)
-                {
-                    MessageBox.Show("Nie znaleziono żadnych poprawnych danych do zaimportowania w tym pliku.", "Błąd odczytu",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                TemporaryImportedRecords = parsedRecords;
-
-                // 4. DOWÓD DZIAŁANIA: Podgląd pierwszego wczytanego wiersza
-                var firstRow = parsedRecords.First();
-                string preview = string.Join("\n", firstRow.Select(kvp => $"- {kvp.Key}: {kvp.Value}"));
-
-                MessageBox.Show($"Pomyślnie wczytano i sparsowano {TemporaryImportedRecords.Count} transakcji!\n\n" +
-                                $"Oto podgląd pierwszego wczytanego wiersza:\n\n{preview}\n\n" +
-                                $"Dane są w pamięci, gotowe do zapisania do systemu (Zadanie PRO-23, bo ja za kogos robic nie bede ).",
-                                "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+                mappingWindow.ShowDialog();
+                // Po zamknięciu okna MainVm.LoadDataAsync() zostało już wywołane wewnątrz VM
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Błąd formatu pliku",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Wystąpił błąd podczas czytania pliku:\n{ex.Message}", "Błąd krytyczny",
+                MessageBox.Show($"Błąd wczytywania pliku:\n{ex.Message}", "Błąd",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
+        /// <summary>Pomocniczy rekord reprezentujący miesiąc w filtrze.</summary>
+        public record MonthItem(int? Number, string Label)
+        {
+            public override string ToString() => Label;
+        }
     }
-    /// <summary>Pomocniczy rekord reprezentujący miesiąc w filtrze.</summary>
-    public record MonthItem(int? Number, string Label)
-    {
-        public override string ToString() => Label;
-    }
-
 }
