@@ -28,7 +28,7 @@
                     <ComboBox Width="120"
                               ItemsSource="{Binding AvailableMonths}"
                               SelectedItem="{Binding SelectedMonth}"
-                              DisplayMemberPath="Label"/>
+                              DisplayMemberPath="Name"/>
                 </StackPanel>
             </StackPanel>
 
