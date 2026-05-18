@@ -64,20 +64,22 @@ namespace wpf_projekt.Services
         public static CsvImportResult MapToTransactions(
             List<Dictionary<string, string>> rows,
             CsvMappingProfile profile,
-            TransactionType category,
+            TransactionType defaultCategory,
             int? personalAccountId,
             int? sharedAccountId,
-            IEnumerable<Transaction> existingTransactions)
+            IEnumerable<Transaction> existingTransactions,
+            IEnumerable<TransactionType>? allCategories = null)
         {
             var result = new CsvImportResult();
             var existing = existingTransactions.ToList();
+            var categories = allCategories?.ToList() ?? new List<TransactionType>();
             int rowNumber = 1;
 
             foreach (var row in rows)
             {
                 rowNumber++;
 
-                //  Data 
+                //  Data
                 if (!row.TryGetValue(profile.ColumnDate!, out var rawDate) ||
                     !TryParseDate(rawDate, profile.DateFormat, out DateTime date))
                 {
@@ -85,7 +87,7 @@ namespace wpf_projekt.Services
                     continue;
                 }
 
-                //  Kwota 
+                //  Kwota
                 if (!row.TryGetValue(profile.ColumnAmount!, out var rawAmount) ||
                     !TryParseAmount(rawAmount, out decimal amount))
                 {
@@ -93,8 +95,19 @@ namespace wpf_projekt.Services
                     continue;
                 }
 
-                // Kierunek transakcji zawsze wynika ze znaku kwoty
-                bool isPositive = amount >= 0;
+                //  Kierunek transakcji
+                bool isPositive;
+                if (!profile.AmountSignDeterminesDirection
+                    && !string.IsNullOrWhiteSpace(profile.ColumnIsPositive)
+                    && row.TryGetValue(profile.ColumnIsPositive!, out var rawType)
+                    && !string.IsNullOrWhiteSpace(rawType))
+                {
+                    isPositive = IsPositiveType(rawType);
+                }
+                else
+                {
+                    isPositive = amount >= 0;
+                }
                 amount = Math.Abs(amount);
 
                 if (amount == 0)
@@ -103,13 +116,25 @@ namespace wpf_projekt.Services
                     continue;
                 }
 
-                //  Opis 
+                //  Opis
                 string description = string.Empty;
                 if (!string.IsNullOrWhiteSpace(profile.ColumnDescription) &&
                     row.TryGetValue(profile.ColumnDescription, out var rawDesc))
                     description = rawDesc.Trim();
 
-                //  Deduplikacja 
+                //  Kategoria
+                TransactionType resolvedCategory = defaultCategory;
+                if (!string.IsNullOrWhiteSpace(profile.ColumnCategory)
+                    && row.TryGetValue(profile.ColumnCategory!, out var rawCategory)
+                    && !string.IsNullOrWhiteSpace(rawCategory)
+                    && categories.Count > 0)
+                {
+                    var match = categories.FirstOrDefault(c =>
+                        c.Name.Equals(rawCategory.Trim(), StringComparison.OrdinalIgnoreCase));
+                    if (match != null) resolvedCategory = match;
+                }
+
+                //  Deduplikacja
                 bool isDuplicate = existing.Any(t =>
                     t.Date.Date == date.Date &&
                     t.Amount == amount &&
@@ -122,14 +147,14 @@ namespace wpf_projekt.Services
                     continue;
                 }
 
-                //  Budowanie modelu 
+                //  Budowanie modelu
                 var tx = new Transaction
                 {
                     Amount = amount,
                     IsPositive = isPositive,
                     Date = date,
                     Description = description,
-                    TransactionTypeId = category.Id,
+                    TransactionTypeId = resolvedCategory.Id,
                     PersonalAccountId = personalAccountId,
                     SharedAccountId = sharedAccountId
                 };
@@ -138,6 +163,24 @@ namespace wpf_projekt.Services
             }
 
             return result;
+        }
+
+        private static readonly string[] PositiveTypeKeywords =
+            { "przychód", "przychod", "uznanie", "wpływ", "wplyw", "przychodzący", "przychodzacy", "credit", "income" };
+
+        private static readonly string[] NegativeTypeKeywords =
+            { "wydatek", "obciążenie", "obciazenie", "wypłata", "wyplata", "wychodzący", "wychodzacy", "debit", "expense", "zakup" };
+
+        private static bool IsPositiveType(string raw)
+        {
+            var normalized = raw.Trim();
+            foreach (var kw in PositiveTypeKeywords)
+                if (normalized.Contains(kw, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            foreach (var kw in NegativeTypeKeywords)
+                if (normalized.Contains(kw, StringComparison.OrdinalIgnoreCase))
+                    return false;
+            return normalized.Contains('+');
         }
 
         //  Zapis i odczyt profilu mapowania 

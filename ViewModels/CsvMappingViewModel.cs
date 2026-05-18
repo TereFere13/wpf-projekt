@@ -37,6 +37,7 @@ namespace wpf_projekt.ViewModels
         [ObservableProperty] private string? _selectedColumnAmount;
         [ObservableProperty] private string? _selectedColumnDescription;
         [ObservableProperty] private string? _selectedColumnIsPositive;
+        [ObservableProperty] private string? _selectedColumnCategory;
         [ObservableProperty] private bool _amountSignDeterminesDirection = true;
         [ObservableProperty] private string _dateFormat = "dd.MM.yyyy";
         [ObservableProperty] private string _profileName = "Mój bank";
@@ -103,7 +104,8 @@ namespace wpf_projekt.ViewModels
             SelectedColumnDate = FindColumn(headers, "data", "date", "Data operacji", "Data transakcji");
             SelectedColumnAmount = FindColumn(headers, "kwota", "amount", "Kwota", "Wartość");
             SelectedColumnDescription = FindColumn(headers, "opis", "description", "Tytuł", "Tytul");
-            SelectedColumnIsPositive = FindColumn(headers, "typ", "type", "Rodzaj transakcji");
+            SelectedColumnIsPositive = FindColumn(headers, "typ transakcji", "rodzaj transakcji", "type", "Rodzaj");
+            SelectedColumnCategory = FindColumn(headers, "kategoria", "category", "Kategoria transakcji");
 
             BuildPreview();
         }
@@ -124,6 +126,7 @@ namespace wpf_projekt.ViewModels
         partial void OnSelectedColumnDateChanged(string? value) { Validate(); BuildPreview(); }
         partial void OnSelectedColumnAmountChanged(string? value) { Validate(); BuildPreview(); }
         partial void OnSelectedColumnDescriptionChanged(string? value) { BuildPreview(); }
+        partial void OnSelectedColumnCategoryChanged(string? value) { BuildPreview(); }
         partial void OnAmountSignDeterminesDirectionChanged(bool value) { Validate(); }
 
         private void Validate()
@@ -154,9 +157,11 @@ namespace wpf_projekt.ViewModels
                     ? v : "—";
 
             PreviewText =
-                $"Data:  {Get(SelectedColumnDate)}\n" +
-                $"Kwota: {Get(SelectedColumnAmount)}\n" +
-                $"Opis:  {Get(SelectedColumnDescription)}";
+                $"Data:      {Get(SelectedColumnDate)}\n" +
+                $"Kwota:     {Get(SelectedColumnAmount)}\n" +
+                $"Opis:      {Get(SelectedColumnDescription)}\n" +
+                $"Typ:       {Get(SelectedColumnIsPositive)}\n" +
+                $"Kategoria: {Get(SelectedColumnCategory)}";
         }
 
         //  Wczytaj zapisany profil 
@@ -172,6 +177,7 @@ namespace wpf_projekt.ViewModels
             SelectedColumnAmount = AvailableColumns.Contains(profile.ColumnAmount ?? "") ? profile.ColumnAmount : null;
             SelectedColumnDescription = AvailableColumns.Contains(profile.ColumnDescription ?? "") ? profile.ColumnDescription : null;
             SelectedColumnIsPositive = AvailableColumns.Contains(profile.ColumnIsPositive ?? "") ? profile.ColumnIsPositive : null;
+            SelectedColumnCategory = AvailableColumns.Contains(profile.ColumnCategory ?? "") ? profile.ColumnCategory : null;
 
             var cat = Categories.FirstOrDefault(c =>
                 c.Name.Equals(profile.DefaultCategoryName, StringComparison.OrdinalIgnoreCase));
@@ -226,7 +232,7 @@ namespace wpf_projekt.ViewModels
                 int? sharedId = SelectedAccount.Kind == AccountKind.Shared ? SelectedAccount.Id : null;
 
                 var result = CsvImportService.MapToTransactions(
-                    _rows, profile, SelectedCategory!, personalId, sharedId, existing);
+                    _rows, profile, SelectedCategory!, personalId, sharedId, existing, Categories);
 
                 if (result.Errors.Count > 0 && result.Imported.Count == 0)
                 {
@@ -283,6 +289,7 @@ namespace wpf_projekt.ViewModels
             ColumnAmount = SelectedColumnAmount == "—" ? null : SelectedColumnAmount,
             ColumnDescription = SelectedColumnDescription == "—" ? null : SelectedColumnDescription,
             ColumnIsPositive = SelectedColumnIsPositive == "—" ? null : SelectedColumnIsPositive,
+            ColumnCategory = SelectedColumnCategory == "—" ? null : SelectedColumnCategory,
             AmountSignDeterminesDirection = AmountSignDeterminesDirection,
             DateFormat = DateFormat,
             DefaultCategoryName = SelectedCategory?.Name ?? "Import"
