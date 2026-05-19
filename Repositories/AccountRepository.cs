@@ -53,5 +53,13 @@ namespace wpf_projekt.Repositories
 
         public Task<User?> GetFirstUserAsync()
             => _context.Users.FirstOrDefaultAsync();
+
+        public Task<List<PersonalAccount>> GetPersonalAccountsByUserAsync(int userId)
+            => _context.PersonalAccounts.Where(a => a.UserId == userId).ToListAsync();
+
+        public Task<List<SharedAccount>> GetSharedAccountsByUserAsync(int userId)
+            => _context.SharedAccounts
+                .Where(a => a.User1Id == userId || a.User2Id == userId)
+                .ToListAsync();
     }
 }

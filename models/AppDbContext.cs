@@ -33,6 +33,10 @@ namespace wpf_projekt.models
                 .WithMany()
                 .HasForeignKey(s => s.User2Id)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }

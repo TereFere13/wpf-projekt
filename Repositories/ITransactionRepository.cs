@@ -7,6 +7,7 @@ namespace wpf_projekt.Repositories
     public interface ITransactionRepository
     {
         Task<List<Transaction>> GetAllWithDetailsAsync();
+        Task<List<Transaction>> GetAllWithDetailsByUserAsync(int userId);
         Task AddAsync(Transaction transaction);
         Task AddRangeAsync(IEnumerable<Transaction> transactions);
     }
