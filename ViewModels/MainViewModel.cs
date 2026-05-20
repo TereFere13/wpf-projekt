@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -18,7 +16,6 @@ namespace wpf_projekt.ViewModels
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly AppDbContext _context;
 
         //  Sub-ViewModels 
         public TransactionsViewModel TransactionsVm { get; }
@@ -55,28 +52,27 @@ namespace wpf_projekt.ViewModels
         [ObservableProperty] private string _transferAmountText = string.Empty;
         [ObservableProperty] private string _transferDescription = string.Empty;
 
-        //  Konstruktor 
+        private readonly User _currentUser;
+
+        //  Konstruktor
         public MainViewModel(
-            AppDbContext context,
             IAccountRepository accountRepository,
             ITransactionRepository transactionRepository,
-            ICategoryRepository categoryRepository)
+            ICategoryRepository categoryRepository,
+            User currentUser)
         {
-            _context = context;
             _accountRepository = accountRepository;
             _transactionRepository = transactionRepository;
             _categoryRepository = categoryRepository;
+            _currentUser = currentUser;
 
             TransactionsVm = new TransactionsViewModel(this, transactionRepository, categoryRepository, accountRepository);
             SummaryVm = new SummaryViewModel(this);
         }
 
-        //  Inicjalizacja 
+        //  Inicjalizacja
         public async Task InitializeAsync()
         {
-            await _context.Database.EnsureCreatedAsync();
-            await ApplyPendingSchemaUpdatesAsync();
-            await SeedInitialDataAsync();
             await _categoryRepository.EnsureExistsAsync("Transfer");
             await LoadDataAsync();
         }
@@ -88,9 +84,9 @@ namespace wpf_projekt.ViewModels
             Transactions.Clear();
 
             var dbCategories = await _categoryRepository.GetAllAsync();
-            var dbPersonal = await _accountRepository.GetAllPersonalAccountsAsync();
-            var dbShared = await _accountRepository.GetAllSharedAccountsAsync();
-            var dbTransactions = await _transactionRepository.GetAllWithDetailsAsync();
+            var dbPersonal = await _accountRepository.GetPersonalAccountsByUserAsync(_currentUser.Id);
+            var dbShared = await _accountRepository.GetSharedAccountsByUserAsync(_currentUser.Id);
+            var dbTransactions = await _transactionRepository.GetAllWithDetailsByUserAsync(_currentUser.Id);
 
             foreach (var c in dbCategories) Categories.Add(c);
 
@@ -185,20 +181,17 @@ namespace wpf_projekt.ViewModels
                 return;
             }
 
-            var firstUser = await _accountRepository.GetFirstUserAsync();
-            if (firstUser == null) { MessageBox.Show("Brak użytkownika w bazie."); return; }
-
             if (NewAccountType == "Wspólne")
                 await _accountRepository.AddSharedAccountAsync(new SharedAccount
                 {
                     Name = name,
                     Balance = 0m,
-                    User1Id = firstUser.Id,
-                    User2Id = firstUser.Id
+                    User1Id = _currentUser.Id,
+                    User2Id = _currentUser.Id
                 });
             else
                 await _accountRepository.AddPersonalAccountAsync(new PersonalAccount
-                { Name = name, Balance = 0m, UserId = firstUser.Id });
+                { Name = name, Balance = 0m, UserId = _currentUser.Id });
 
             await LoadDataAsync();
             NewAccountName = string.Empty;
@@ -315,46 +308,6 @@ namespace wpf_projekt.ViewModels
             TransactionDate = DateTime.Now;
         }
 
-        private async Task ApplyPendingSchemaUpdatesAsync()
-        {
-            await TryAddColumnAsync("PersonalAccounts", "Name", "TEXT NOT NULL DEFAULT ''");
-            await TryAddColumnAsync("SharedAccounts", "Name", "TEXT NOT NULL DEFAULT ''");
-            await TryAddColumnAsync("Transactions", "TransferGroupId", "TEXT NULL");
-        }
-
-        private async Task TryAddColumnAsync(string table, string column, string def)
-        {
-            try
-            {
-                await _context.Database.ExecuteSqlRawAsync(
-                    $"ALTER TABLE {table} ADD COLUMN {column} {def}");
-            }
-            catch (SqliteException ex) when (ex.SqliteErrorCode == 1 && ex.Message.Contains("duplicate column name"))
-            { /* kolumna już istnieje */ }
-        }
-
-        private async Task SeedInitialDataAsync()
-        {
-            if (await _context.Users.AnyAsync()) return;
-
-            _context.TransactionTypes.AddRange(
-                new TransactionType { Name = "Jedzenie" },
-                new TransactionType { Name = "Transport" },
-                new TransactionType { Name = "Wypłata" },
-                new TransactionType { Name = "Rozrywka" },
-                new TransactionType { Name = "Transfer" }
-            );
-
-            var user = new User { FirstName = "Jan", LastName = "Kowalski", Earnings = 5000 };
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            _context.PersonalAccounts.Add(new PersonalAccount
-            { Name = "Konto główne", Balance = 2500, UserId = user.Id });
-            _context.SharedAccounts.Add(new SharedAccount
-            { Name = "Konto wspólne", Balance = 1200, User1Id = user.Id, User2Id = user.Id });
-            await _context.SaveChangesAsync();
-        }
 
         // --- LOGIKA WALIDACJI (IDataErrorInfo) ---
         public string Error => null;

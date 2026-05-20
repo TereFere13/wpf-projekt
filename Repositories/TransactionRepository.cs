@@ -23,6 +23,17 @@ namespace wpf_projekt.Repositories
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
 
+        public Task<List<Transaction>> GetAllWithDetailsByUserAsync(int userId)
+            => _context.Transactions
+                .Include(t => t.TransactionType)
+                .Include(t => t.PersonalAccount)
+                .Include(t => t.SharedAccount)
+                .Where(t =>
+                    (t.PersonalAccountId != null && t.PersonalAccount!.UserId == userId) ||
+                    (t.SharedAccountId != null && (t.SharedAccount!.User1Id == userId || t.SharedAccount.User2Id == userId)))
+                .OrderByDescending(t => t.Date)
+                .ToListAsync();
+
         public async Task AddAsync(Transaction transaction)
         {
             _context.Transactions.Add(transaction);
