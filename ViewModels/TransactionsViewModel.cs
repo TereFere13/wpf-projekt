@@ -46,6 +46,9 @@ namespace wpf_projekt.ViewModels
         [ObservableProperty] private string _selectedCategory = "Wszystkie";
         [ObservableProperty] private string _selectedType = "Wszystkie";   // Wszystkie / Wydatek / Przychód
         [ObservableProperty] private string _selectedSort = "Od najnowszej"; // Od najnowszej / Od najstarszej
+        [ObservableProperty] private decimal _totalIncome;
+        [ObservableProperty] private decimal _totalExpense;
+        [ObservableProperty] private decimal _balance;
 
         public TransactionsViewModel(MainViewModel mainVm,
         ITransactionRepository transactionRepository,
@@ -127,6 +130,7 @@ namespace wpf_projekt.ViewModels
                 : data.OrderByDescending(t => t.Date);
 
             FilteredTransactions = data.ToList();
+                    CalculateStatistics(); 
         }
 
         private void Refresh()
@@ -182,8 +186,6 @@ namespace wpf_projekt.ViewModels
         }
 
 
-
-
         [RelayCommand]
         private async System.Threading.Tasks.Task ImportCsvAsync()
         {
@@ -237,10 +239,18 @@ namespace wpf_projekt.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void CalculateStatistics()
+        {
+            TotalIncome = FilteredTransactions.Where(t => t.IsPositive).Sum(t => t.Amount);
+            TotalExpense = FilteredTransactions.Where(t => !t.IsPositive).Sum(t => t.Amount);
+            Balance = TotalIncome - TotalExpense;
+        }
         //Pomocniczy rekord reprezentujący miesiąc w filtrze
         public record MonthItem(int? Number, string Label)
         {
             public override string ToString() => Label;
         }
+
     }
 }
