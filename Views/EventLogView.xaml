@@ -1,17 +1,15 @@
 ﻿<UserControl x:Class="wpf_projekt.Views.EventLogsView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Grid Margin="10">
-
-        <DataGrid x:Name="LogsGrid"
+        <DataGrid ItemsSource="{Binding Logs}" 
                   AutoGenerateColumns="False"
                   IsReadOnly="True">
 
             <DataGrid.Columns>
-
                 <DataGridTextColumn Header="Data"
-                                    Binding="{Binding Timestamp}"
+                                    Binding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
                                     Width="170"/>
 
                 <DataGridTextColumn Header="Typ"
@@ -21,10 +19,7 @@
                 <DataGridTextColumn Header="Opis"
                                     Binding="{Binding Description}"
                                     Width="*"/>
-
             </DataGrid.Columns>
-
         </DataGrid>
-
     </Grid>
 </UserControl>

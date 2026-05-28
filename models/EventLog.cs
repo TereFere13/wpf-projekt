@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using wpf_projekt.Models;
+using wpf_projekt.models;
 
 namespace wpf_projekt.Models
 {

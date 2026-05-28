@@ -11,8 +11,8 @@ using wpf_projekt.models;
 namespace wpf_projekt.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260528175224_AddEventLogs")]
-    partial class AddEventLogs
+    [Migration("20260528211246_AddEventLogsTable")]
+    partial class AddEventLogsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

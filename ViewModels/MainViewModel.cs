@@ -31,6 +31,7 @@ namespace wpf_projekt.ViewModels
         public ObservableCollection<Transaction> Transactions { get; } = new();
         public ObservableCollection<AccountListItem> Accounts { get; } = new();
         public ObservableCollection<TransactionType> Categories { get; } = new();
+        public ObservableCollection<EventLog> Logs { get; } = new();
 
         // ── Właściwości bindowane — formularz transakcji (WALIDOWANE) ───────────
 
@@ -79,8 +80,7 @@ namespace wpf_projekt.ViewModels
         // ── Inicjalizacja ─────────────────────────────────────────────────────────
         public async Task InitializeAsync()
         {
-            await _context.Database.EnsureCreatedAsync();
-            await ApplyPendingSchemaUpdatesAsync();
+            await _context.Database.MigrateAsync();
             await SeedInitialDataAsync();
             await _categoryRepository.EnsureExistsAsync("Transfer");
             await LoadDataAsync();
@@ -91,11 +91,14 @@ namespace wpf_projekt.ViewModels
             Categories.Clear();
             Accounts.Clear();
             Transactions.Clear();
+            Logs.Clear();
 
             var dbCategories = await _categoryRepository.GetAllAsync();
             var dbPersonal = await _accountRepository.GetAllPersonalAccountsAsync();
             var dbShared = await _accountRepository.GetAllSharedAccountsAsync();
             var dbTransactions = await _transactionRepository.GetAllWithDetailsAsync();
+
+            var dbLogs = await _context.EventLogs.OrderByDescending(x => x.Timestamp).ToListAsync();
 
             foreach (var c in dbCategories) Categories.Add(c);
 
@@ -118,6 +121,7 @@ namespace wpf_projekt.ViewModels
                 });
 
             foreach (var t in dbTransactions) Transactions.Add(t);
+            foreach (var log in dbLogs) Logs.Add(log);
         }
 
         // ── Komendy ───────────────────────────────────────────────────────────────

@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using wpf_projekt.Models;
+using wpf_projekt.models;
 
 namespace wpf_projekt.models
 {
     public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<PersonalAccount> PersonalAccounts { get; set; }
         public DbSet<SharedAccount> SharedAccounts { get; set; }
@@ -19,7 +21,9 @@ namespace wpf_projekt.models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=finance_manager.db");
+            // Używamy pełnej ścieżki, aby zawsze trafiać do tego samego pliku
+            string dbPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "finance_manager.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

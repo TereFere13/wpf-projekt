@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace wpf_projekt.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEventLogs : Migration
+    public partial class AddEventLogsTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

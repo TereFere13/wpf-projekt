@@ -1,9 +1,10 @@
-﻿using System.Windows;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
 using System.Windows.Input;
 using wpf_projekt.models;
 using wpf_projekt.Repositories;
-using wpf_projekt.ViewModels;
 using wpf_projekt.Services;
+using wpf_projekt.ViewModels;
 
 
 namespace wpf_projekt
@@ -14,27 +15,22 @@ namespace wpf_projekt
 
         public MainWindow()
         {
+
             InitializeComponent();
 
-            var context = new AppDbContext();
+            // Pobierz gotowy kontekst z serwisu (zamiast tworzyć new AppDbContext())
+            var context = App.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            // NOWE
-            var eventLogService = new Services.EventLogService(context);
-
+            // Teraz inicjalizuj repozytoria
+            var eventLogService = new EventLogService(context);
             var accountRepo = new AccountRepository(context);
             var transactionRepo = new TransactionRepository(context);
             var categoryRepo = new CategoryRepository(context);
 
-            // NOWE — przekazujemy eventLogService
             _viewModel = new MainViewModel(
-                context,
-                accountRepo,
-                transactionRepo,
-                categoryRepo,
-                eventLogService);
+                context, accountRepo, transactionRepo, categoryRepo, eventLogService);
 
             DataContext = _viewModel;
-
             Loaded += async (_, _) => await _viewModel.InitializeAsync();
         }
 

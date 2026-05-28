@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+
 namespace wpf_projekt.models
 {
     public class PersonalAccount : ObservableModel

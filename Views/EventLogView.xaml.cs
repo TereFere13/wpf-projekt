@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Windows.Controls;
-using wpf_projekt.models;
-using wpf_projekt.Models;
+﻿using System.Windows.Controls;
 
 namespace wpf_projekt.Views
 {
@@ -10,12 +7,6 @@ namespace wpf_projekt.Views
         public EventLogsView()
         {
             InitializeComponent();
-
-            using var context = new AppDbContext();
-
-            LogsGrid.ItemsSource = context.EventLogs
-                .OrderByDescending(x => x.Timestamp)
-                .ToList();
         }
     }
 }
