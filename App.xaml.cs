@@ -19,13 +19,11 @@ namespace wpf_projekt
         {
             base.OnStartup(e);
             var services = new ServiceCollection();
-
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite($"Data Source={System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "finance_manager.db")}"));
-
+            services.AddSingleton<AppDbContext>();
             services.AddScoped<IEventLogService, EventLogService>();
 
             ServiceProvider = services.BuildServiceProvider();
+
             var context = ServiceProvider.GetRequiredService<AppDbContext>();
             context.Database.Migrate();
 

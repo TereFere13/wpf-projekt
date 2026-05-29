@@ -21,7 +21,6 @@ namespace wpf_projekt
             // Pobierz gotowy kontekst z serwisu (zamiast tworzyć new AppDbContext())
             var context = App.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            // Teraz inicjalizuj repozytoria
             var eventLogService = new EventLogService(context);
             var accountRepo = new AccountRepository(context);
             var transactionRepo = new TransactionRepository(context);

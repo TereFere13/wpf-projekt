@@ -23,10 +23,7 @@
                     </Style.Triggers>
                 </Style>
             </TabControl.Resources>
-            <!-- Logi -->
-            <TabItem Header="Historia zdarzeń">
-                <views:EventLogsView/>
-            </TabItem>
+
             <!-- ══════ DODAJ ══════ -->
             <TabItem Header="Dodaj">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0">
@@ -179,6 +176,12 @@
             <!-- ══════ PODSUMOWANIE ══════ -->
             <TabItem Header="Podsumowanie">
                 <views:SummaryView DataContext="{Binding SummaryVm}" Margin="0,10,0,0"/>
+            </TabItem>
+            <!-- Logi -->
+            <TabItem Header="Historia zdarzeń">
+                <Grid Background="White">
+                    <views:EventLogsView Margin="10"/>
+                </Grid>
             </TabItem>
 
         </TabControl>

@@ -11,19 +11,20 @@ namespace wpf_projekt.models
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+     
+        public AppDbContext() { }
+
         public DbSet<User> Users { get; set; }
         public DbSet<PersonalAccount> PersonalAccounts { get; set; }
         public DbSet<SharedAccount> SharedAccounts { get; set; }
-        public DbSet<wpf_projekt.Models.Transaction> Transactions { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionType> TransactionTypes { get; set; }
         public DbSet<EventLog> EventLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Używamy pełnej ścieżki, aby zawsze trafiać do tego samego pliku
-            string dbPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "finance_manager.db");
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            
+            optionsBuilder.UseSqlite($"Data Source={System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "finance_manager.db")}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
