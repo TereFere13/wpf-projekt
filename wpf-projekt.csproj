@@ -27,8 +27,4 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include=".ai\CLAUDE.md" />
-  </ItemGroup>
-
 </Project>
