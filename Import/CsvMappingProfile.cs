@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace wpf_projekt.Models
+namespace wpf_projekt.Import
 {
     /// <summary>
     /// Schemat mapowania kolumn CSV → pola modelu Transaction.

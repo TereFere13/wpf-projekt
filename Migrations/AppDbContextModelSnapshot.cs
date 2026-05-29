@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using wpf_projekt.models;
+using wpf_projekt.Data;
 
 #nullable disable
 
@@ -17,7 +17,7 @@ namespace wpf_projekt.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.25");
 
-            modelBuilder.Entity("wpf_projekt.Models.Transaction", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.Transaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -56,7 +56,7 @@ namespace wpf_projekt.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.PersonalAccount", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.PersonalAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,7 +75,7 @@ namespace wpf_projekt.Migrations
                     b.ToTable("PersonalAccounts");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.SharedAccount", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.SharedAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +99,7 @@ namespace wpf_projekt.Migrations
                     b.ToTable("SharedAccounts");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.TransactionType", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.TransactionType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -114,7 +114,7 @@ namespace wpf_projekt.Migrations
                     b.ToTable("TransactionTypes");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.User", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -152,17 +152,17 @@ namespace wpf_projekt.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("wpf_projekt.Models.Transaction", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.Transaction", b =>
                 {
-                    b.HasOne("wpf_projekt.models.PersonalAccount", "PersonalAccount")
+                    b.HasOne("wpf_projekt.Entities.PersonalAccount", "PersonalAccount")
                         .WithMany("Transactions")
                         .HasForeignKey("PersonalAccountId");
 
-                    b.HasOne("wpf_projekt.models.SharedAccount", "SharedAccount")
+                    b.HasOne("wpf_projekt.Entities.SharedAccount", "SharedAccount")
                         .WithMany("Transactions")
                         .HasForeignKey("SharedAccountId");
 
-                    b.HasOne("wpf_projekt.models.TransactionType", "TransactionType")
+                    b.HasOne("wpf_projekt.Entities.TransactionType", "TransactionType")
                         .WithMany("Transactions")
                         .HasForeignKey("TransactionTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -175,9 +175,9 @@ namespace wpf_projekt.Migrations
                     b.Navigation("TransactionType");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.PersonalAccount", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.PersonalAccount", b =>
                 {
-                    b.HasOne("wpf_projekt.models.User", "User")
+                    b.HasOne("wpf_projekt.Entities.User", "User")
                         .WithMany("PersonalAccounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -186,15 +186,15 @@ namespace wpf_projekt.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.SharedAccount", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.SharedAccount", b =>
                 {
-                    b.HasOne("wpf_projekt.models.User", "User1")
+                    b.HasOne("wpf_projekt.Entities.User", "User1")
                         .WithMany()
                         .HasForeignKey("User1Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("wpf_projekt.models.User", "User2")
+                    b.HasOne("wpf_projekt.Entities.User", "User2")
                         .WithMany()
                         .HasForeignKey("User2Id")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -205,31 +205,31 @@ namespace wpf_projekt.Migrations
                     b.Navigation("User2");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.User", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.User", b =>
                 {
-                    b.HasOne("wpf_projekt.models.SharedAccount", "SharedAccount")
+                    b.HasOne("wpf_projekt.Entities.SharedAccount", "SharedAccount")
                         .WithMany()
                         .HasForeignKey("SharedAccountId");
 
                     b.Navigation("SharedAccount");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.PersonalAccount", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.PersonalAccount", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.SharedAccount", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.SharedAccount", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.TransactionType", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.TransactionType", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("wpf_projekt.models.User", b =>
+            modelBuilder.Entity("wpf_projekt.Entities.User", b =>
                 {
                     b.Navigation("PersonalAccounts");
                 });

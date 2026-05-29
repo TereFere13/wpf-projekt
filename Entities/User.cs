@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using wpf_projekt.Models;
 
-namespace wpf_projekt.models
+namespace wpf_projekt.Entities
 {
     public class User : ObservableModel
     {

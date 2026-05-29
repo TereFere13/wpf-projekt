@@ -4,8 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using wpf_projekt.Models;
-using wpf_projekt.models;
+using wpf_projekt.Entities;
+using wpf_projekt.Import;
 
 namespace wpf_projekt.Services
 {

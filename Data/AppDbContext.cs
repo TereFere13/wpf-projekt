@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using wpf_projekt.Entities;
 
-namespace wpf_projekt.models
+namespace wpf_projekt.Data
 {
     public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<PersonalAccount> PersonalAccounts { get; set; }
         public DbSet<SharedAccount> SharedAccounts { get; set; }
-        public DbSet<wpf_projekt.Models.Transaction> Transactions { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionType> TransactionTypes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

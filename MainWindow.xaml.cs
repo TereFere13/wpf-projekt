@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using wpf_projekt.models;
+using wpf_projekt.Data;
+using wpf_projekt.Entities;
 using wpf_projekt.Repositories;
 using wpf_projekt.Services;
 using wpf_projekt.ViewModels;

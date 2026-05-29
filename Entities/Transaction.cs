@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using wpf_projekt.models;
+using wpf_projekt.Models;
 
-namespace wpf_projekt.Models
+namespace wpf_projekt.Entities
 {
     public class Transaction : ObservableModel // Zakładając, że dziedziczysz po klasie powiadomień
     {

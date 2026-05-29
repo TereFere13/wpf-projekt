@@ -4,7 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
-using wpf_projekt.models;
+using wpf_projekt.Entities;
 using wpf_projekt.Models;
 using wpf_projekt.Repositories;
 using System.ComponentModel;

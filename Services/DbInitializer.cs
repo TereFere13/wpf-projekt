@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using wpf_projekt.models;
+using wpf_projekt.Data;
+using wpf_projekt.Entities;
 
 namespace wpf_projekt.Services
 {

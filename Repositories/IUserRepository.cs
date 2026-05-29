@@ -1,4 +1,4 @@
-using wpf_projekt.models;
+using wpf_projekt.Entities;
 
 namespace wpf_projekt.Repositories
 {

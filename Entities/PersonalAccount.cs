@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using wpf_projekt.Models;
 
-namespace wpf_projekt.models
+namespace wpf_projekt.Entities
 {
     public class PersonalAccount : ObservableModel
     {
@@ -26,6 +27,6 @@ namespace wpf_projekt.models
         public int UserId { get; set; }
 
         public virtual User User { get; set; }
-        public virtual ICollection<wpf_projekt.Models.Transaction> Transactions { get; set; } = new List<wpf_projekt.Models.Transaction>();
+        public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

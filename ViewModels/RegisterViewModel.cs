@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using wpf_projekt.models;
+using wpf_projekt.Entities;
 using wpf_projekt.Repositories;
 using wpf_projekt.Services;
 
